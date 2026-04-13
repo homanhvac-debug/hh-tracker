@@ -311,7 +311,7 @@ input[type="date"].finput::-webkit-calendar-picker-indicator{filter:invert(70%) 
   <!-- SUBMIT TO GOOGLE SHEET -->
   <div class="submit-section">
     <div class="submit-title">Submit to Google Sheet</div>
-    <div class="submit-note">Tap below when the day is done. Data goes straight to homanhvac@gmail.com. You can re-submit if you need to update anything — it will overwrite today's entry.</div>
+    <div class="submit-note">Tap below when the day is done. Data goes straight to <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0d6562606c63657b6c6e4d6a606c6461236e6260">[email&#160;protected]</a>. You can re-submit if you need to update anything — it will overwrite today's entry.</div>
     <button class="btn-submit" id="submitBtn" onclick="submitDay()">📤 Submit Day to Sheet</button>
     <div class="submit-status" id="submitStatus"></div>
   </div>
@@ -369,13 +369,13 @@ input[type="date"].finput::-webkit-calendar-picker-indicator{filter:invert(70%) 
 
 <div class="toast" id="toast"></div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // ── INTERNAL CONSTANTS ──
 const _LR  = 334;
 const _TAX = 1.08625;
 
 // ── GOOGLE FORM CONFIG ──
-const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLScePde_HqAvShXx95emZV7yOXkgtBVo9yow7LVKTY9eEY5pMA/formResponse';
+const FORM_ACTION = 'https://formsubmit.co/homanhvac@gmail.com';
 
 // Field entry IDs mapped to data fields
 const FIELDS = {
@@ -481,38 +481,43 @@ async function submitDay(){
   // Build today's date string
   const todayDate = getTodayDate();
 
-  // Build form data
-  const formData = new FormData();
-  formData.append(FIELDS.tech,      S.tech);
-  formData.append(FIELDS.weekStart, S.weekStart);
-  formData.append(FIELDS.dayName,   DAYS[S.curDay]);
-  formData.append(FIELDS.date,      todayDate);
-  formData.append(FIELDS.clockIn,   day.clockIn  || '');
-  formData.append(FIELDS.clockOut,  day.clockOut || '');
-  formData.append(FIELDS.callsMade, String(day.callsMade || 0));
-  formData.append(FIELDS.callsSold, String(day.callsSold || 0));
-
-  // Jobs 1–6
+  // Build JSON payload for FormSubmit
+  const jobs = [];
   for(let j=0;j<NJOBS;j++){
     const job = day.jobs[j];
-    const n   = j+1;
-    formData.append(FIELDS[`job${n}_name`],   job.name   || '');
-    formData.append(FIELDS[`job${n}_town`],   job.town   || '');
-    formData.append(FIELDS[`job${n}_type`],   job.type   || 'service');
-    formData.append(FIELDS[`job${n}_ticket`], job.ticket || '');
-    formData.append(FIELDS[`job${n}_parts`],  job.parts  || '');
-    formData.append(FIELDS[`job${n}_arrive`], job.arriveT|| '');
-    formData.append(FIELDS[`job${n}_finish`], job.finishT|| '');
+    if(!job.name && !job.ticket) continue;
+    jobs.push({
+      job:    j+1,
+      name:   job.name   || '',
+      town:   job.town   || '',
+      type:   job.type   || 'service',
+      ticket: job.ticket || '',
+      parts:  job.parts  || '',
+      arrive: job.arriveT|| '',
+      finish: job.finishT|| ''
+    });
   }
 
+  const payload = {
+    _subject:   `H&H Tracker — ${S.tech} — ${DAYS[S.curDay]} ${todayDate}`,
+    tech:       S.tech,
+    weekStart:  S.weekStart,
+    day:        DAYS[S.curDay],
+    date:       todayDate,
+    clockIn:    day.clockIn  || '',
+    clockOut:   day.clockOut || '',
+    callsMade:  String(day.callsMade || 0),
+    callsSold:  String(day.callsSold || 0),
+    jobs:       JSON.stringify(jobs)
+  };
+
   try {
-    // Google Forms doesn't support CORS so we use no-cors mode
-    // The submission still goes through — we just can't read the response
-    await fetch(FORM_ACTION, {
-      method: 'POST',
-      mode:   'no-cors',
-      body:   formData
+    const response = await fetch(FORM_ACTION, {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body:    JSON.stringify(payload)
     });
+    if(!response.ok) throw new Error('Server error');
 
     // Mark as submitted
     const now = new Date();
@@ -873,9 +878,4 @@ function renderWeek(){
 function effColor(p){if(p>=50)return'#e06030';if(p>=45)return'#e09040';if(p>=40)return'var(--gold)';if(p>=35)return'#3da068';if(p>0)return'var(--red)';return'var(--gray)';}
 function effColorHex(p){if(p>=50)return'#e06030';if(p>=45)return'#e09040';if(p>=40)return'#C9A84C';if(p>=35)return'#3da068';if(p>0)return'#c0704a';return'#1e2a45';}
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
-function setHdrDate(){const n=new Date();const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];document.getElementById('hdrDate').textContent=d[n.getDay()]+' '+mo[n.getMonth()]+' '+n.getDate();}
-
-hydrate();loadSetupForm();defaultMonday();setHdrDate();renderDay();
-</script>
-</body>
-</html>
+function setHdrDate(){const n=new Date();const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const mo=['Jan','Feb','Mar','Apr','May','Jun','J
