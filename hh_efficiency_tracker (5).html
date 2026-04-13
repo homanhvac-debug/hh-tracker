@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>H&H Tech Efficiency</title>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy-dark:#0f1a33;--gold:#C9A84C;--gold-light:#e0bc6a;--gold-dark:#a8892e;
+  --white:#f0ede6;--gray:#7a7a8a;--card:#1a2a4a;--input:#0d1628;
+  --green:#3da068;--red:#c0704a;--amber:#e09040;--blue:#64a0dc;--border:rgba(201,168,76,0.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+body{font-family:'Open Sans',sans-serif;background:var(--navy-dark);color:var(--white);min-height:100vh;overflow-x:hidden;}
+
+.hdr{background:var(--navy-dark);border-bottom:2px solid var(--gold);padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;}
+.hdr-logo{font-family:'Oswald',sans-serif;font-size:17px;font-weight:700;color:var(--gold);letter-spacing:1px;line-height:1.15;}
+.hdr-logo span{color:var(--white);font-weight:400;font-size:13px;}
+.hdr-right{text-align:right;}
+.hdr-date{font-family:'Oswald',sans-serif;font-size:12px;color:var(--gray);}
+.hdr-tech{font-family:'Oswald',sans-serif;font-size:13px;color:var(--gold-light);margin-top:2px;}
+
+.tabs{display:flex;background:var(--navy-dark);border-bottom:1px solid var(--border);}
+.tab{font-family:'Oswald',sans-serif;font-size:14px;font-weight:500;padding:11px 0;color:var(--gray);cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;letter-spacing:.5px;flex:1;text-align:center;}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold);}
+
+.view{display:none;padding:14px;}
+.view.active{display:block;}
+
+.card{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:18px;margin-bottom:12px;}
+.card-title{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.fl{margin-bottom:12px;}
+.fl:last-child{margin-bottom:0;}
+.flabel{font-size:10px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
+
+.finput{width:100%;background:var(--input);border:1px solid rgba(201,168,76,.22);border-radius:8px;padding:11px 13px;font-family:'Open Sans',sans-serif;font-size:15px;color:var(--white);outline:none;-webkit-appearance:none;appearance:none;}
+.finput:focus{border-color:var(--gold);}
+select.finput{cursor:pointer;}
+select.finput option{background:#1a2a4a;color:var(--white);}
+input[type="date"].finput{color-scheme:dark;cursor:pointer;}
+input[type="date"].finput::-webkit-calendar-picker-indicator{filter:invert(70%) sepia(40%) saturate(400%) hue-rotate(5deg);cursor:pointer;}
+
+.time-sel-row{display:grid;grid-template-columns:1fr 1fr 72px;gap:5px;}
+.time-sel-row select{background:var(--input);border:1px solid rgba(201,168,76,.22);border-radius:8px;padding:10px 6px;font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;color:var(--white);outline:none;-webkit-appearance:none;appearance:none;cursor:pointer;text-align:center;width:100%;}
+.time-sel-row select option{background:#1a2a4a;color:var(--white);}
+.time-sel-row select:focus{border-color:var(--gold);}
+
+.job-type-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:12px;}
+.jtype-btn{padding:10px 4px;border-radius:8px;border:1px solid var(--border);background:transparent;font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--gray);cursor:pointer;text-align:center;transition:all .15s;width:100%;letter-spacing:.3px;}
+.jtype-btn.active-svc{background:var(--green);color:#fff;border-color:var(--green);}
+.jtype-btn.active-trip{background:var(--amber);color:var(--navy-dark);border-color:var(--amber);}
+.jtype-btn.active-inst{background:var(--blue);color:#fff;border-color:var(--blue);}
+
+.jtype-note{font-size:10px;margin-top:8px;font-style:italic;line-height:1.5;padding:8px 10px;border-radius:6px;}
+.jtype-note.svc{color:var(--green);background:rgba(61,160,104,.08);border:1px solid rgba(61,160,104,.2);}
+.jtype-note.trip{color:var(--amber);background:rgba(224,144,64,.08);border:1px solid rgba(224,144,64,.2);}
+.jtype-note.inst{color:var(--blue);background:rgba(100,160,220,.08);border:1px solid rgba(100,160,220,.2);}
+
+.btn{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;letter-spacing:.8px;padding:13px;border-radius:9px;cursor:pointer;text-transform:uppercase;border:none;transition:all .15s;width:100%;}
+.btn-gold{background:var(--gold);color:var(--navy-dark);}
+.btn-gold:active{background:var(--gold-dark);}
+.btn-outline{background:transparent;border:1px solid var(--gold);color:var(--gold);}
+.btn-outline:active{background:var(--gold);color:var(--navy-dark);}
+.btn-danger{background:transparent;border:1px solid rgba(192,112,74,.4);color:var(--red);}
+.btn-danger:active{background:rgba(192,112,74,.15);}
+.btn-submit{background:var(--green);color:#fff;font-family:'Oswald',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;padding:15px;border-radius:9px;cursor:pointer;text-transform:uppercase;border:none;width:100%;transition:all .15s;}
+.btn-submit:active{background:#2d8a4a;}
+.btn-submit.submitting{background:var(--gray);cursor:not-allowed;}
+.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;}
+
+.rule-box{background:var(--input);border-radius:9px;padding:13px 15px;margin-bottom:12px;border-left:3px solid var(--gold);}
+.rule-box p{font-size:12px;color:var(--gray);line-height:1.75;}
+.rule-box strong{color:var(--white);}
+
+.tier-legend{margin-top:4px;}
+.tier-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.tier-row:last-child{border-bottom:none;}
+.tier-name{font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;}
+.tier-detail{font-size:11px;color:var(--gray);margin-top:1px;}
+.tier-earn{font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;color:var(--gold);}
+
+.day-sel{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.day-sel::-webkit-scrollbar{display:none;}
+.daybtn{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;padding:8px 14px;border-radius:8px;border:1px solid rgba(201,168,76,.2);background:transparent;color:var(--gray);cursor:pointer;flex-shrink:0;}
+.daybtn.active{color:var(--gold);border-color:var(--gold);}
+.daybtn.submitted{border-color:var(--green);color:var(--green);}
+
+.day-hero{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:16px 18px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;}
+.day-name{font-family:'Oswald',sans-serif;font-size:22px;font-weight:700;color:var(--gold);}
+.day-sub{font-size:12px;color:var(--gray);margin-top:2px;}
+.eff-num{font-family:'Oswald',sans-serif;font-size:36px;font-weight:700;line-height:1;text-align:right;}
+.eff-lbl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:.7px;text-align:right;margin-top:2px;}
+
+.clock-section{background:var(--card);border-radius:12px;border:1px solid var(--border);padding:14px 16px;margin-bottom:12px;}
+.clock-section-title{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.clock-two{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
+.clock-hrs-row{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid rgba(255,255,255,.06);}
+.clock-hrs-lbl{font-size:11px;color:var(--gray);text-transform:uppercase;letter-spacing:.8px;}
+.clock-hrs-val{font-family:'Oswald',sans-serif;font-size:24px;font-weight:700;color:var(--gold);}
+
+.job-card{background:var(--card);border-radius:11px;border:1px solid var(--border);margin-bottom:9px;overflow:hidden;transition:border-color .2s;}
+.job-card.has-data{border-color:rgba(201,168,76,.35);}
+.job-card.is-trip{border-color:rgba(224,144,64,.45);}
+.job-card.is-inst{border-color:rgba(100,160,220,.45);}
+.job-hdr{display:flex;align-items:center;justify-content:space-between;padding:13px 15px;cursor:pointer;}
+.job-num{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--gold);letter-spacing:.8px;}
+.job-info{font-size:12px;color:var(--gray);margin-top:2px;}
+.job-arrow{color:var(--gray);font-size:16px;margin-left:8px;transition:transform .2s;}
+.job-card.open .job-arrow{transform:rotate(180deg);}
+.job-body{display:none;padding:0 15px 15px;border-top:1px solid rgba(255,255,255,.05);}
+.job-card.open .job-body{display:block;}
+.job-status{width:10px;height:10px;border-radius:50%;background:var(--gray);flex-shrink:0;}
+.job-status.done{background:var(--green);}
+.job-status.trip{background:var(--amber);}
+.job-status.inst{background:var(--blue);}
+
+.jtype-badge{font-family:'Oswald',sans-serif;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:.5px;margin-right:4px;}
+.jtype-badge.trip{background:rgba(224,144,64,.2);color:var(--amber);}
+.jtype-badge.inst{background:rgba(100,160,220,.2);color:var(--blue);}
+
+.counter-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.cbox{background:var(--card);border-radius:11px;border:1px solid var(--border);padding:13px 15px;}
+.counter{display:flex;align-items:center;gap:10px;margin-top:10px;}
+.cbtn{width:44px;height:44px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+.cbtn:active,.cbtn:hover{background:rgba(201,168,76,.15);}
+.cval{font-family:'Oswald',sans-serif;font-size:32px;font-weight:700;flex:1;text-align:center;}
+
+.sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.sbox{background:var(--input);border-radius:8px;padding:11px;text-align:center;}
+.sbox.hero{border:1px solid rgba(201,168,76,.4);}
+.sval{font-family:'Oswald',sans-serif;font-size:21px;font-weight:700;}
+.slbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.6px;margin-top:3px;}
+
+/* Submit section */
+.submit-section{background:var(--card);border-radius:12px;border:1px solid var(--green);padding:16px;margin-bottom:12px;}
+.submit-title{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.submit-note{font-size:11px;color:var(--gray);margin-bottom:12px;line-height:1.5;}
+.submit-status{font-size:12px;text-align:center;margin-top:10px;min-height:18px;}
+.submit-status.ok{color:var(--green);}
+.submit-status.err{color:var(--red);}
+.submit-status.sending{color:var(--gold);}
+
+.week-hero{background:var(--card);border-radius:12px;border:1px solid rgba(201,168,76,.35);padding:22px;margin-bottom:12px;text-align:center;}
+.week-eff{font-family:'Oswald',sans-serif;font-size:72px;font-weight:700;line-height:1;}
+.week-eff-lbl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;}
+.week-eff-sub{font-size:12px;color:var(--gray);margin-top:10px;}
+
+.bonus-card{border-radius:12px;padding:20px;margin-bottom:12px;text-align:center;}
+.bonus-card.locked{background:var(--card);border:1px solid var(--border);}
+.bonus-card.t1{background:linear-gradient(135deg,#0f1a33,#0f2018);border:1px solid #3da068;}
+.bonus-card.t2{background:linear-gradient(135deg,#0f1a33,#1e1a08);border:1px solid var(--gold);}
+.bonus-card.t3{background:linear-gradient(135deg,#0f1a33,#1e1208);border:1px solid #e09040;}
+.bonus-card.t4{background:linear-gradient(135deg,#0f1a33,#200e08);border:2px solid #e06030;}
+.bonus-lbl{font-size:10px;color:var(--gray);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;}
+.bonus-tier-lbl{font-family:'Oswald',sans-serif;font-size:15px;font-weight:600;margin-bottom:4px;}
+.bonus-amt{font-family:'Oswald',sans-serif;font-size:48px;font-weight:700;line-height:1;}
+.bonus-note{font-size:12px;color:var(--gray);margin-top:10px;}
+.bonus-next{font-size:11px;color:var(--gray);margin-top:5px;font-style:italic;}
+
+.wk-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px;}
+.wkstat{background:var(--card);border-radius:10px;border:1px solid var(--border);padding:11px 8px;text-align:center;}
+.wkval{font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;}
+.wklbl{font-size:9px;color:var(--gray);text-transform:uppercase;letter-spacing:.5px;margin-top:3px;}
+
+.owner-label{font-family:'Oswald',sans-serif;font-size:10px;font-weight:600;color:rgba(201,168,76,.5);text-transform:uppercase;letter-spacing:1.5px;text-align:center;margin:4px 0 8px;border-top:1px solid var(--border);padding-top:10px;}
+
+.inst-log{background:var(--card);border-radius:12px;border:1px solid rgba(100,160,220,.3);padding:16px;margin-bottom:12px;}
+.inst-log-title{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+.inst-row{display:flex;justify-content:space-between;align-items:flex-start;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;}
+.inst-row:last-child{border-bottom:none;}
+.inst-name{color:var(--white);font-weight:600;}
+.inst-meta{color:var(--gray);font-size:11px;margin-top:2px;}
+.inst-right{text-align:right;flex-shrink:0;margin-left:10px;}
+.inst-hrs{font-family:'Oswald',sans-serif;font-size:15px;color:var(--blue);}
+.inst-ticket{font-size:11px;color:var(--gray);margin-top:2px;}
+
+/* Submission history in week tab */
+.submit-log{background:var(--card);border-radius:12px;border:1px solid rgba(61,160,104,.25);padding:16px;margin-bottom:12px;}
+.submit-log-title{font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;color:var(--green);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.submit-log-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:12px;}
+.submit-log-row:last-child{border-bottom:none;}
+.submit-log-day{font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:var(--white);}
+.submit-log-time{font-size:11px;color:var(--gray);}
+.submit-log-check{color:var(--green);font-size:14px;}
+
+.day-bar-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.day-bar-row:last-child{border-bottom:none;}
+.dbr-day{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;width:34px;flex-shrink:0;}
+.dbr-wrap{flex:1;height:7px;background:var(--input);border-radius:4px;overflow:hidden;}
+.dbr-fill{height:100%;border-radius:4px;}
+.dbr-hrs{font-size:11px;color:var(--gray);width:38px;text-align:right;flex-shrink:0;}
+.dbr-eff{font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;width:50px;text-align:right;flex-shrink:0;}
+
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(90px);background:var(--gold);color:var(--navy-dark);font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;letter-spacing:.8px;padding:11px 26px;border-radius:30px;transition:transform .3s ease;z-index:999;white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-logo">HOMAN &amp; HOMAN<br><span>Tech Efficiency Tracker</span></div>
+  <div class="hdr-right">
+    <div class="hdr-date" id="hdrDate"></div>
+    <div class="hdr-tech" id="hdrTech"></div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showView('setup',this)">Setup</div>
+  <div class="tab" onclick="showView('day',this)">Day Log</div>
+  <div class="tab" onclick="showView('week',this)">Week</div>
+</div>
+
+<!-- ══════════ SETUP ══════════ -->
+<div class="view active" id="view-setup">
+  <div class="rule-box">
+    <p>
+      <strong>Service Call</strong> — regular call, full ticket.<br>
+      <strong>Trip Fee</strong> — sold a return install, enter trip fee only.<br>
+      <strong>Return Install</strong> — going back to do the work, full ticket, actual clock time.<br><br>
+      <strong>Submit Day</strong> at end of each day — data goes straight to the H&amp;H Google Sheet.
+    </p>
+  </div>
+  <div class="card">
+    <div class="card-title">Technician &amp; Week</div>
+    <div class="fl">
+      <div class="flabel">Technician</div>
+      <select class="finput" id="setupTech">
+        <option value="">Select Tech...</option>
+        <option value="Joseph">Joseph</option>
+        <option value="Nazar">Nazar</option>
+      </select>
+    </div>
+    <div class="fl">
+      <div class="flabel">Week Starting (Monday)</div>
+      <input type="date" class="finput" id="setupWeekStart">
+    </div>
+    <button class="btn btn-gold" style="margin-top:8px;" onclick="saveSetup()">Save &amp; Start Week</button>
+  </div>
+  <div class="card">
+    <div class="card-title">Bonus Tiers</div>
+    <div class="tier-legend">
+      <div class="tier-row"><div><div class="tier-name" style="color:#3da068">TIER 1 — 35%</div><div class="tier-detail">≥35% of clock hrs as labor</div></div><div class="tier-earn">$10 / labor hr</div></div>
+      <div class="tier-row"><div><div class="tier-name" style="color:var(--gold)">TIER 2 — 40%</div><div class="tier-detail">≥40% of clock hrs as labor</div></div><div class="tier-earn">$15 / labor hr</div></div>
+      <div class="tier-row"><div><div class="tier-name" style="color:#e09040">TIER 3 — 45%</div><div class="tier-detail">≥45% of clock hrs as labor</div></div><div class="tier-earn">$20 / labor hr</div></div>
+      <div class="tier-row"><div><div class="tier-name" style="color:#e06030">TIER 4 — 50%+</div><div class="tier-detail">≥50% of clock hrs as labor</div></div><div class="tier-earn">$25 / labor hr</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ DAY LOG ══════════ -->
+<div class="view" id="view-day">
+  <div class="day-sel" id="daySel"></div>
+  <div class="day-hero">
+    <div>
+      <div class="day-name" id="dayName">—</div>
+      <div class="day-sub" id="daySub">—</div>
+    </div>
+    <div>
+      <div class="eff-num" id="dayEffNum" style="color:var(--gray)">—</div>
+      <div class="eff-lbl">Billable Eff.</div>
+    </div>
+  </div>
+
+  <div class="clock-section">
+    <div class="clock-section-title">Clock In / Out</div>
+    <div class="clock-two">
+      <div><div class="flabel">Clock In</div><div class="time-sel-row" id="tselClockIn"></div></div>
+      <div><div class="flabel">Clock Out</div><div class="time-sel-row" id="tselClockOut"></div></div>
+    </div>
+    <div class="clock-hrs-row">
+      <div class="clock-hrs-lbl">Hours Worked Today</div>
+      <div class="clock-hrs-val" id="hoursWorkedDisp">—</div>
+    </div>
+  </div>
+
+  <div id="jobList"></div>
+
+  <div class="counter-row">
+    <div class="cbox">
+      <div class="card-title">Calls Made</div>
+      <div class="counter">
+        <button class="cbtn" onclick="adjCount('callsMade',-1)">−</button>
+        <div class="cval" id="callsMadeVal">0</div>
+        <button class="cbtn" onclick="adjCount('callsMade',1)">+</button>
+      </div>
+    </div>
+    <div class="cbox">
+      <div class="card-title">Calls Sold</div>
+      <div class="counter">
+        <button class="cbtn" onclick="adjCount('callsSold',-1)">−</button>
+        <div class="cval" id="callsSoldVal">0</div>
+        <button class="cbtn" onclick="adjCount('callsSold',1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Daily Summary</div>
+    <div class="sum-grid">
+      <div class="sbox hero"><div class="sval" id="sBillEff">—</div><div class="slbl">Billable Efficiency</div></div>
+      <div class="sbox"><div class="sval" id="sConv">—</div><div class="slbl">Conversion Rate</div></div>
+      <div class="sbox"><div class="sval" id="sHrsW">—</div><div class="slbl">Hrs Worked</div></div>
+      <div class="sbox"><div class="sval" id="sHrsS">—</div><div class="slbl">Labor Hrs Sold</div></div>
+    </div>
+  </div>
+
+  <!-- SUBMIT TO GOOGLE SHEET -->
+  <div class="submit-section">
+    <div class="submit-title">Submit to Google Sheet</div>
+    <div class="submit-note">Tap below when the day is done. Data goes straight to homanhvac@gmail.com. You can re-submit if you need to update anything — it will overwrite today's entry.</div>
+    <button class="btn-submit" id="submitBtn" onclick="submitDay()">📤 Submit Day to Sheet</button>
+    <div class="submit-status" id="submitStatus"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-outline" onclick="saveDay()">✓ Save Local</button>
+    <button class="btn btn-danger" onclick="clearDay()">✕ Clear Day</button>
+  </div>
+</div>
+
+<!-- ══════════ WEEK ══════════ -->
+<div class="view" id="view-week">
+  <div class="week-hero">
+    <div class="week-eff-lbl">Weekly Billable Efficiency</div>
+    <div class="week-eff" id="wkEffBig">—</div>
+    <div class="week-eff-sub" id="wkEffSub">No data yet</div>
+  </div>
+  <div class="bonus-card locked" id="bonusCard">
+    <div class="bonus-lbl">Weekly Bonus</div>
+    <div class="bonus-tier-lbl" id="bonusTierLbl">—</div>
+    <div class="bonus-amt" id="bonusAmt">—</div>
+    <div class="bonus-note" id="bonusNote">Enter data in Day Log to calculate</div>
+    <div class="bonus-next" id="bonusNext"></div>
+  </div>
+  <div class="wk-stats">
+    <div class="wkstat"><div class="wkval" id="wkHours">—</div><div class="wklbl">Clock Hrs</div></div>
+    <div class="wkstat"><div class="wkval" id="wkLaborHrs">—</div><div class="wklbl">Labor Hrs Sold</div></div>
+    <div class="wkstat"><div class="wkval" id="wkConv">—</div><div class="wklbl">Conversion</div></div>
+  </div>
+  <div class="owner-label">Owner View — Financials</div>
+  <div class="wk-stats" style="margin-bottom:4px;">
+    <div class="wkstat"><div class="wkval" id="wkLaborRev">—</div><div class="wklbl">Labor Revenue</div></div>
+    <div class="wkstat"><div class="wkval" id="wkAvg">—</div><div class="wklbl">Avg / Ticket</div></div>
+    <div class="wkstat"><div class="wkval" id="wkTickets">—</div><div class="wklbl">Tickets</div></div>
+  </div>
+
+  <!-- Submission log -->
+  <div class="submit-log" id="submitLog" style="display:none;margin-top:10px;">
+    <div class="submit-log-title">Days Submitted This Week</div>
+    <div id="submitLogList"></div>
+  </div>
+
+  <!-- Install log -->
+  <div class="inst-log" id="instLog" style="display:none;margin-top:10px;">
+    <div class="inst-log-title">Return Installs This Week</div>
+    <div id="instLogList"></div>
+  </div>
+
+  <div class="card" style="margin-top:10px;">
+    <div class="card-title">Day Breakdown</div>
+    <div id="weekBars"></div>
+  </div>
+  <button class="btn btn-danger" style="margin-top:4px;" onclick="resetWeek()">Reset Entire Week</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── INTERNAL CONSTANTS ──
+const _LR  = 334;
+const _TAX = 1.08625;
+
+// ── GOOGLE FORM CONFIG ──
+const FORM_ACTION = 'https://docs.google.com/forms/d/e/1FAIpQLScePde_HqAvShXx95emZV7yOXkgtBVo9yow7LVKTY9eEY5pMA/formResponse';
+
+// Field entry IDs mapped to data fields
+const FIELDS = {
+  tech:         'entry.1732018011',
+  weekStart:    'entry.1842166731',
+  dayName:      'entry.331968691',
+  date:         'entry.189546835',
+  clockIn:      'entry.2105297983',
+  clockOut:     'entry.25520137',
+  callsMade:    'entry.2018383683',
+  callsSold:    'entry.1230584120',
+  job1_name:    'entry.498205850',
+  job1_town:    'entry.1210344807',
+  job1_type:    'entry.789240331',
+  job1_ticket:  'entry.163005332',
+  job1_parts:   'entry.1711405238',
+  job1_arrive:  'entry.1297296151',
+  job1_finish:  'entry.1209725332',
+  job2_name:    'entry.1243173244',
+  job2_town:    'entry.1860018586',
+  job2_type:    'entry.887831612',
+  job2_ticket:  'entry.576602246',
+  job2_parts:   'entry.443194179',
+  job2_arrive:  'entry.133872383',
+  job2_finish:  'entry.407117310',
+  job3_name:    'entry.909055321',
+  job3_town:    'entry.1110672853',
+  job3_type:    'entry.2027491246',
+  job3_ticket:  'entry.1346842865',
+  job3_parts:   'entry.1181802084',
+  job3_arrive:  'entry.1045351107',
+  job3_finish:  'entry.282061947',
+  job4_name:    'entry.1437527334',
+  job4_town:    'entry.124906755',
+  job4_type:    'entry.393281862',
+  job4_ticket:  'entry.15433877',
+  job4_parts:   'entry.782678849',
+  job4_arrive:  'entry.391796967',
+  job4_finish:  'entry.1746682609',
+  job5_name:    'entry.1411605984',
+  job5_town:    'entry.564410071',
+  job5_type:    'entry.1584970211',
+  job5_ticket:  'entry.257561917',
+  job5_parts:   'entry.470362931',
+  job5_arrive:  'entry.366469695',
+  job5_finish:  'entry.1377997489',
+  job6_name:    'entry.1788336898',
+  job6_town:    'entry.1490536580',
+  job6_type:    'entry.1768816669',
+  job6_ticket:  'entry.243579525',
+  job6_parts:   'entry.56080728',
+  job6_arrive:  'entry.2019571253',
+  job6_finish:  'entry.1840754709',
+};
+
+const DAYS  = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DSHRT = ['Mon','Tue','Wed','Thu','Fri','Sat'];
+const NJOBS = 6;
+const TIERS = [
+  {pct:50,rate:25,label:'TIER 4',cls:'t4',color:'#e06030'},
+  {pct:45,rate:20,label:'TIER 3',cls:'t3',color:'#e09040'},
+  {pct:40,rate:15,label:'TIER 2',cls:'t2',color:'#C9A84C'},
+  {pct:35,rate:10,label:'TIER 1',cls:'t1',color:'#3da068'},
+];
+
+function mkJob(){return{name:'',town:'',arriveT:'',finishT:'',ticket:'',parts:'',type:'service'};}
+function mkDay(){return{clockIn:'',clockOut:'',callsMade:0,callsSold:0,submittedAt:'',jobs:Array.from({length:NJOBS},mkJob)};}
+function mkDays(){return Array.from({length:6},mkDay);}
+
+let S={tech:'',weekStart:'',curDay:0,days:mkDays()};
+function persist(){try{localStorage.setItem('hh_v13',JSON.stringify(S));}catch(e){}}
+function hydrate(){
+  try{
+    const r=localStorage.getItem('hh_v13');
+    if(r){
+      S=JSON.parse(r);
+      S.days.forEach(d=>{
+        if(!d.submittedAt)d.submittedAt='';
+        d.jobs.forEach(j=>{
+          if(!j.type)j.type='service';
+          if(j.name===undefined)j.name=j.addr||'';
+          if(j.town===undefined)j.town='';
+        });
+      });
+    }
+  }catch(e){}
+}
+
+// ── GOOGLE FORM SUBMIT ──
+async function submitDay(){
+  const day = S.days[S.curDay];
+  const btn = document.getElementById('submitBtn');
+  const status = document.getElementById('submitStatus');
+
+  if(!S.tech){toast('Set your tech name in Setup first');return;}
+  if(!S.weekStart){toast('Set week start date in Setup first');return;}
+
+  btn.textContent = '⏳ Submitting...';
+  btn.className = 'btn-submit submitting';
+  status.textContent = 'Sending to Google Sheet...';
+  status.className = 'submit-status sending';
+
+  // Build today's date string
+  const todayDate = getTodayDate();
+
+  // Build form data
+  const formData = new FormData();
+  formData.append(FIELDS.tech,      S.tech);
+  formData.append(FIELDS.weekStart, S.weekStart);
+  formData.append(FIELDS.dayName,   DAYS[S.curDay]);
+  formData.append(FIELDS.date,      todayDate);
+  formData.append(FIELDS.clockIn,   day.clockIn  || '');
+  formData.append(FIELDS.clockOut,  day.clockOut || '');
+  formData.append(FIELDS.callsMade, String(day.callsMade || 0));
+  formData.append(FIELDS.callsSold, String(day.callsSold || 0));
+
+  // Jobs 1–6
+  for(let j=0;j<NJOBS;j++){
+    const job = day.jobs[j];
+    const n   = j+1;
+    formData.append(FIELDS[`job${n}_name`],   job.name   || '');
+    formData.append(FIELDS[`job${n}_town`],   job.town   || '');
+    formData.append(FIELDS[`job${n}_type`],   job.type   || 'service');
+    formData.append(FIELDS[`job${n}_ticket`], job.ticket || '');
+    formData.append(FIELDS[`job${n}_parts`],  job.parts  || '');
+    formData.append(FIELDS[`job${n}_arrive`], job.arriveT|| '');
+    formData.append(FIELDS[`job${n}_finish`], job.finishT|| '');
+  }
+
+  try {
+    // Google Forms doesn't support CORS so we use no-cors mode
+    // The submission still goes through — we just can't read the response
+    await fetch(FORM_ACTION, {
+      method: 'POST',
+      mode:   'no-cors',
+      body:   formData
+    });
+
+    // Mark as submitted
+    const now = new Date();
+    S.days[S.curDay].submittedAt = now.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    persist();
+
+    btn.textContent = '✓ Submitted Successfully';
+    btn.className = 'btn-submit';
+    btn.style.background = 'var(--green)';
+    status.textContent = '✓ Data sent to H&H Google Sheet · ' + S.days[S.curDay].submittedAt;
+    status.className = 'submit-status ok';
+
+    // Update day selector to show green checkmark
+    buildDaySel();
+    toast(DAYS[S.curDay] + ' submitted to Sheet ✓');
+
+    setTimeout(()=>{
+      btn.textContent = '📤 Submit Day to Sheet';
+      btn.style.background = '';
+    }, 4000);
+
+  } catch(err) {
+    btn.textContent = '📤 Submit Day to Sheet';
+    btn.className = 'btn-submit';
+    status.textContent = '⚠ Could not reach Google — check connection and try again';
+    status.className = 'submit-status err';
+  }
+}
+
+function getTodayDate(){
+  const n=new Date();
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
+}
+
+// ── TIME SELECT ──
+function makeTimeSel(containerId,initVal,onChangeFn){
+  const wrap=document.getElementById(containerId);if(!wrap)return;
+  wrap.innerHTML='';
+  let iH=7,iM=0,iAP='AM';
+  if(initVal&&initVal.includes(':')){
+    const[h24,m]=initVal.split(':').map(Number);
+    iAP=h24>=12?'PM':'AM';iH=h24%12||12;iM=m;
+  }
+  const hSel=document.createElement('select');
+  for(let h=1;h<=12;h++){const o=document.createElement('option');o.value=h;o.textContent=String(h);if(h===iH)o.selected=true;hSel.appendChild(o);}
+  const mSel=document.createElement('select');
+  for(let m=0;m<60;m++){const o=document.createElement('option');o.value=m;o.textContent=String(m).padStart(2,'0');if(m===iM)o.selected=true;mSel.appendChild(o);}
+  const apSel=document.createElement('select');
+  ['AM','PM'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;if(v===iAP)o.selected=true;apSel.appendChild(o);});
+  function emit(){
+    let h24=parseInt(hSel.value)%12;if(apSel.value==='PM')h24+=12;
+    onChangeFn(String(h24).padStart(2,'0')+':'+String(parseInt(mSel.value)).padStart(2,'0'));
+  }
+  hSel.addEventListener('change',emit);mSel.addEventListener('change',emit);apSel.addEventListener('change',emit);
+  wrap.appendChild(hSel);wrap.appendChild(mSel);wrap.appendChild(apSel);
+  [hSel,mSel,apSel].forEach(el=>el.addEventListener('click',e=>e.stopPropagation()));
+  emit();
+}
+
+// ── MATH ──
+function clockMins(t){if(!t||!t.includes(':'))return null;const[h,m]=t.split(':').map(Number);return h*60+m;}
+function timeDiff(a,b){const i=clockMins(a),o=clockMins(b);if(i===null||o===null)return 0;return Math.max(0,(o-i)/60);}
+function hoursWorked(day){return timeDiff(day.clockIn,day.clockOut);}
+function calcJobLabor(job){
+  const ticket=parseFloat(job.ticket)||0,parts=parseFloat(job.parts)||0;
+  if(!ticket)return{labor:0,lhrs:0};
+  const labor=Math.max(0,(ticket/_TAX)-parts);
+  return{labor,lhrs:labor/_LR};
+}
+function dayCalc(day){
+  const hw=hoursWorked(day);let tl=0,tlh=0,tickets=0;
+  day.jobs.forEach(j=>{const b=calcJobLabor(j);tl+=b.labor;tlh+=b.lhrs;if(b.labor>0)tickets++;});
+  return{hw,tl,tlh,tickets,eff:hw>0?tlh/hw:0,conv:day.callsMade>0?day.callsSold/day.callsMade:0,avg:tickets>0?tl/tickets:0};
+}
+function weekCalc(){
+  let hw=0,tl=0,tlh=0,made=0,sold=0,tickets=0;
+  const perDay=S.days.map(d=>{const c=dayCalc(d);hw+=c.hw;tl+=c.tl;tlh+=c.tlh;made+=d.callsMade;sold+=d.callsSold;tickets+=c.tickets;return c;});
+  const eff=hw>0?tlh/hw:0;
+  let tier=null;for(const t of TIERS){if(eff*100>=t.pct){tier=t;break;}}
+  const installs=[];
+  S.days.forEach((day,di)=>{
+    day.jobs.forEach(j=>{
+      if(j.type==='install'&&(j.ticket||j.name)){
+        installs.push({name:j.name,town:j.town,ticket:parseFloat(j.ticket)||0,parts:parseFloat(j.parts)||0,day:DSHRT[di],hrs:timeDiff(j.arriveT,j.finishT)});
+      }
+    });
+  });
+  return{hw,tl,tlh,tickets,eff,conv:made>0?sold/made:0,avg:tickets>0?tl/tickets:0,made,sold,tier,bonusAmt:tier?tlh*tier.rate:0,perDay,installs};
+}
+
+// ── NAV ──
+function showView(v,el){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(el)el.classList.add('active');
+  if(v==='day')renderDay();
+  if(v==='week')renderWeek();
+}
+
+// ── SETUP ──
+function saveSetup(){
+  S.tech=document.getElementById('setupTech').value;
+  S.weekStart=document.getElementById('setupWeekStart').value;
+  if(!S.tech){toast('Select a technician first');return;}
+  if(!S.weekStart){toast('Select a week start date');return;}
+  persist();document.getElementById('hdrTech').textContent=S.tech;toast('Saved — go to Day Log');
+}
+function loadSetupForm(){
+  document.getElementById('setupTech').value=S.tech||'';
+  document.getElementById('setupWeekStart').value=S.weekStart||'';
+  if(S.tech)document.getElementById('hdrTech').textContent=S.tech;
+}
+function defaultMonday(){
+  const el=document.getElementById('setupWeekStart');if(el.value)return;
+  const n=new Date(),d=n.getDay(),diff=d===0?-6:1-d,m=new Date(n);
+  m.setDate(n.getDate()+diff);el.value=m.toISOString().slice(0,10);S.weekStart=el.value;
+}
+
+// ── DAY ──
+function buildDaySel(){
+  const c=document.getElementById('daySel');c.innerHTML='';
+  DSHRT.forEach((d,i)=>{
+    const b=document.createElement('button');
+    const submitted=S.days[i].submittedAt;
+    b.className='daybtn'+(i===S.curDay?' active':'')+(submitted?' submitted':'');
+    b.textContent=submitted?d+' ✓':d;
+    b.onclick=()=>selectDay(i);c.appendChild(b);
+  });
+}
+function selectDay(i){S.curDay=i;renderDay();}
+function fmtDayDate(i){
+  if(!S.weekStart)return'';
+  const d=new Date(S.weekStart+'T12:00:00');d.setDate(d.getDate()+i);
+  return(d.getMonth()+1)+'/'+d.getDate();
+}
+function renderDay(){
+  buildDaySel();
+  const day=S.days[S.curDay];
+  document.getElementById('dayName').textContent=DAYS[S.curDay];
+  document.getElementById('daySub').textContent=(S.tech||'Set tech in Setup')+(S.weekStart?' · '+fmtDayDate(S.curDay):'');
+  document.getElementById('callsMadeVal').textContent=day.callsMade||0;
+  document.getElementById('callsSoldVal').textContent=day.callsSold||0;
+  // Reset submit status display
+  const status=document.getElementById('submitStatus');
+  if(day.submittedAt){
+    status.textContent='✓ Last submitted at '+day.submittedAt;
+    status.className='submit-status ok';
+  } else {
+    status.textContent='';status.className='submit-status';
+  }
+  makeTimeSel('tselClockIn',day.clockIn||'07:00',val=>{S.days[S.curDay].clockIn=val;recalcDisplay();persist();});
+  makeTimeSel('tselClockOut',day.clockOut||'17:00',val=>{S.days[S.curDay].clockOut=val;recalcDisplay();persist();});
+  renderJobs();recalcDisplay();
+}
+
+// ── JOBS ──
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
+function jobCardClass(j,isOpen){
+  const base=j.type==='trip'?'job-card is-trip':j.type==='install'?'job-card is-inst':'job-card'+(j.ticket||j.name?' has-data':'');
+  return base+(isOpen?' open':'');
+}
+function jobDotClass(j){if(j.type==='trip')return'job-status trip';if(j.type==='install')return'job-status inst';return'job-status'+(j.ticket||j.name?' done':'');}
+function jobBadge(j){if(j.type==='trip')return'<span class="jtype-badge trip">TRIP FEE</span>';if(j.type==='install')return'<span class="jtype-badge inst">INSTALL</span>';return'';}
+function jobInfoLine(j){const nm=j.name||'',tw=j.town||'';return(nm&&tw)?nm+' — '+tw:(nm||tw||'Tap to open');}
+function jobTypeNote(type){
+  if(type==='trip')return{cls:'trip',text:'Trip fee only — enter the fee collected today. Full ticket goes in when you return for the install.'};
+  if(type==='install')return{cls:'inst',text:'Return install — enter the full job ticket and your actual arrive/finish times.'};
+  return{cls:'svc',text:'Regular service call — enter the full ticket amount.'};
+}
+
+function renderJobs(){
+  const day=S.days[S.curDay];
+  const c=document.getElementById('jobList');c.innerHTML='';
+  for(let j=0;j<NJOBS;j++){
+    const job=day.jobs[j];
+    const card=document.createElement('div');
+    card.className=jobCardClass(job,false);card.id='jc'+j;
+    const hdr=document.createElement('div');hdr.className='job-hdr';
+    hdr.addEventListener('click',()=>toggleJob(j));
+    hdr.innerHTML=`
+      <div style="flex:1;">
+        <div class="job-num" id="jnum${j}">${jobBadge(job)}JOB ${j+1}</div>
+        <div class="job-info" id="jinfo${j}">${esc(jobInfoLine(job))}</div>
+      </div>
+      <div class="${jobDotClass(job)}" id="jdot${j}"></div>
+      <div class="job-arrow">▾</div>`;
+    const body=document.createElement('div');body.className='job-body';body.id='jbody'+j;
+    const note=jobTypeNote(job.type);
+    body.innerHTML=`
+      <div class="row2" style="margin-top:12px;">
+        <div><div class="flabel">Customer Name</div>
+          <input class="finput" type="text" placeholder="Smith" value="${esc(job.name)}"
+            oninput="S.days[S.curDay].jobs[${j}].name=this.value;syncJobHeader(${j});persist();">
+        </div>
+        <div><div class="flabel">Town</div>
+          <input class="finput" type="text" placeholder="Bethpage" value="${esc(job.town)}"
+            oninput="S.days[S.curDay].jobs[${j}].town=this.value;syncJobHeader(${j});persist();">
+        </div>
+      </div>
+      <div class="row2" style="margin-top:10px;">
+        <div><div class="flabel">Arrive Time</div><div id="tselArr${j}" class="time-sel-row"></div></div>
+        <div><div class="flabel">Finish Time</div><div id="tselFin${j}" class="time-sel-row"></div></div>
+      </div>
+      <div class="job-type-row">
+        <button class="jtype-btn${job.type==='service'?' active-svc':''}" id="jbtn_svc${j}">SERVICE CALL</button>
+        <button class="jtype-btn${job.type==='trip'?' active-trip':''}" id="jbtn_trip${j}">TRIP FEE</button>
+        <button class="jtype-btn${job.type==='install'?' active-inst':''}" id="jbtn_inst${j}">RETURN INSTALL</button>
+      </div>
+      <div class="jtype-note ${note.cls}" id="jnote${j}">${note.text}</div>
+      <div class="row2" style="margin-top:12px;">
+        <div><div class="flabel">Total Ticket $</div>
+          <input class="finput" type="number" inputmode="decimal" placeholder="0.00" value="${esc(job.ticket)}"
+            oninput="S.days[S.curDay].jobs[${j}].ticket=this.value;syncJobHeader(${j});recalcDisplay();persist();">
+        </div>
+        <div><div class="flabel">Parts Cost $</div>
+          <input class="finput" type="number" inputmode="decimal" placeholder="0.00" value="${esc(job.parts)}"
+            oninput="S.days[S.curDay].jobs[${j}].parts=this.value;recalcDisplay();persist();">
+        </div>
+      </div>`;
+    card.appendChild(hdr);card.appendChild(body);c.appendChild(card);
+    makeTimeSel('tselArr'+j,job.arriveT||'08:00',val=>{S.days[S.curDay].jobs[j].arriveT=val;recalcDisplay();persist();});
+    makeTimeSel('tselFin'+j,job.finishT||'09:00',val=>{S.days[S.curDay].jobs[j].finishT=val;recalcDisplay();persist();});
+    document.getElementById('jbtn_svc'+j).addEventListener('click',e=>{e.stopPropagation();setJobType(j,'service');});
+    document.getElementById('jbtn_trip'+j).addEventListener('click',e=>{e.stopPropagation();setJobType(j,'trip');});
+    document.getElementById('jbtn_inst'+j).addEventListener('click',e=>{e.stopPropagation();setJobType(j,'install');});
+    body.querySelectorAll('input').forEach(el=>el.addEventListener('click',e=>e.stopPropagation()));
+  }
+}
+
+function toggleJob(j){document.getElementById('jc'+j).classList.toggle('open');}
+
+function syncJobHeader(j){
+  const job=S.days[S.curDay].jobs[j];
+  const info=document.getElementById('jinfo'+j);const dot=document.getElementById('jdot'+j);const card=document.getElementById('jc'+j);
+  if(info)info.textContent=jobInfoLine(job);
+  if(dot)dot.className=jobDotClass(job);
+  if(card){const isOpen=card.classList.contains('open');card.className=jobCardClass(job,isOpen);}
+  recalcDisplay();
+}
+
+function setJobType(j,type){
+  S.days[S.curDay].jobs[j].type=type;persist();
+  syncJobHeader(j);
+  const num=document.getElementById('jnum'+j);if(num)num.innerHTML=jobBadge(S.days[S.curDay].jobs[j])+'JOB '+(j+1);
+  const map={service:'svc',trip:'trip',install:'inst'};
+  ['service','trip','install'].forEach(t=>{const btn=document.getElementById('jbtn_'+map[t]+j);if(btn)btn.className='jtype-btn'+(type===t?' active-'+map[t]:'');});
+  const noteEl=document.getElementById('jnote'+j);
+  if(noteEl){const note=jobTypeNote(type);noteEl.className='jtype-note '+note.cls;noteEl.textContent=note.text;}
+  recalcDisplay();
+}
+
+function adjCount(field,delta){
+  S.days[S.curDay][field]=Math.max(0,(S.days[S.curDay][field]||0)+delta);
+  document.getElementById(field+'Val').textContent=S.days[S.curDay][field];
+  recalcDisplay();persist();
+}
+
+function recalcDisplay(){
+  const day=S.days[S.curDay],hw=hoursWorked(day);
+  document.getElementById('hoursWorkedDisp').textContent=hw>0?hw.toFixed(2)+'h':'—';
+  const c=dayCalc(day),ep=c.eff*100,es=c.eff>0?ep.toFixed(1)+'%':'—';
+  document.getElementById('dayEffNum').textContent=es;
+  document.getElementById('dayEffNum').style.color=c.eff>0?effColor(ep):'var(--gray)';
+  document.getElementById('sBillEff').textContent=es;
+  document.getElementById('sBillEff').style.color=c.eff>0?effColor(ep):'var(--gray)';
+  document.getElementById('sConv').textContent=day.callsMade>0?(c.conv*100).toFixed(0)+'%':'—';
+  document.getElementById('sHrsW').textContent=c.hw>0?c.hw.toFixed(2)+'h':'—';
+  document.getElementById('sHrsS').textContent=c.tlh>0?c.tlh.toFixed(2)+'h':'—';
+}
+
+function saveDay(){persist();toast(DAYS[S.curDay]+' saved locally ✓');}
+function clearDay(){
+  if(!confirm('Clear all data for '+DAYS[S.curDay]+'?'))return;
+  S.days[S.curDay]=mkDay();persist();renderDay();toast('Day cleared');
+}
+function resetWeek(){
+  if(!confirm('Reset the entire week? Cannot be undone.'))return;
+  S.days=mkDays();persist();renderWeek();toast('Week reset');
+}
+
+// ── WEEK ──
+function renderWeek(){
+  const w=weekCalc(),ep=w.eff*100;
+  const big=document.getElementById('wkEffBig');
+  big.textContent=w.eff>0?ep.toFixed(1)+'%':'—';big.style.color=w.eff>0?effColor(ep):'var(--gray)';
+  document.getElementById('wkEffSub').textContent=w.hw>0?w.tlh.toFixed(2)+' labor hrs / '+w.hw.toFixed(2)+' clock hrs':'No clock data entered yet';
+  const bc=document.getElementById('bonusCard');bc.className='bonus-card '+(w.tier?w.tier.cls:'locked');
+  if(w.tier){
+    document.getElementById('bonusTierLbl').textContent=w.tier.label+' — $'+w.tier.rate+'/labor hr';
+    document.getElementById('bonusTierLbl').style.color=w.tier.color;
+    document.getElementById('bonusAmt').textContent='$'+w.bonusAmt.toFixed(2);
+    document.getElementById('bonusAmt').style.color=w.tier.color;
+    document.getElementById('bonusNote').textContent=w.tlh.toFixed(2)+' labor hrs × $'+w.tier.rate+' = $'+w.bonusAmt.toFixed(2);
+    const ti=TIERS.indexOf(w.tier);
+    document.getElementById('bonusNext').textContent=ti>0?'Sell '+Math.max(0,((TIERS[ti-1].pct/100)*w.hw)-w.tlh).toFixed(2)+' more labor hrs → '+TIERS[ti-1].label+' ($'+TIERS[ti-1].rate+'/hr)':'🔥 Maximum tier — elite performance';
+  }else{
+    document.getElementById('bonusTierLbl').textContent='Below Threshold';document.getElementById('bonusTierLbl').style.color='var(--gray)';
+    document.getElementById('bonusAmt').textContent='$0';document.getElementById('bonusAmt').style.color='var(--gray)';
+    document.getElementById('bonusNote').textContent=w.hw>0?'Need '+Math.max(0,(0.35*w.hw)-w.tlh).toFixed(2)+' more labor hrs to reach Tier 1':'Enter clock in/out in Day Log';
+    document.getElementById('bonusNext').textContent='';
+  }
+  document.getElementById('wkHours').textContent=w.hw>0?w.hw.toFixed(1)+'h':'—';
+  document.getElementById('wkLaborHrs').textContent=w.tlh>0?w.tlh.toFixed(2)+'h':'—';
+  document.getElementById('wkConv').textContent=w.made>0?(w.conv*100).toFixed(0)+'%':'—';
+  document.getElementById('wkLaborRev').textContent=w.tl>0?'$'+Math.round(w.tl).toLocaleString():'—';
+  document.getElementById('wkAvg').textContent=w.avg>0?'$'+w.avg.toFixed(0):'—';
+  document.getElementById('wkTickets').textContent=w.tickets||'—';
+
+  // Submission log
+  const subSec=document.getElementById('submitLog'),subList=document.getElementById('submitLogList');
+  const submittedDays=S.days.map((d,i)=>({day:DSHRT[i],time:d.submittedAt})).filter(d=>d.time);
+  if(submittedDays.length>0){
+    subSec.style.display='block';subList.innerHTML='';
+    submittedDays.forEach(d=>{
+      const row=document.createElement('div');row.className='submit-log-row';
+      row.innerHTML=`<div class="submit-log-day">${d.day}</div><div class="submit-log-time">Submitted ${d.time}</div><div class="submit-log-check">✓</div>`;
+      subList.appendChild(row);
+    });
+  }else{subSec.style.display='none';}
+
+  // Install log
+  const instSec=document.getElementById('instLog'),instList=document.getElementById('instLogList');
+  if(w.installs.length>0){
+    instSec.style.display='block';instList.innerHTML='';
+    w.installs.forEach(inst=>{
+      const b={labor:0,lhrs:0};
+      if(inst.ticket){const labor=Math.max(0,(inst.ticket/_TAX)-inst.parts);b.labor=labor;b.lhrs=labor/_LR;}
+      const row=document.createElement('div');row.className='inst-row';
+      row.innerHTML=`
+        <div>
+          <div class="inst-name">${esc(inst.name||'—')}${inst.town?' — '+esc(inst.town):''}</div>
+          <div class="inst-meta">${inst.day} · ${inst.hrs>0?inst.hrs.toFixed(2)+'h on site':'Times not entered'}</div>
+        </div>
+        <div class="inst-right">
+          <div class="inst-hrs">${b.lhrs>0?b.lhrs.toFixed(2)+'h labor':''}</div>
+          <div class="inst-ticket">$${inst.ticket.toFixed(0)} ticket</div>
+        </div>`;
+      instList.appendChild(row);
+    });
+  }else{instSec.style.display='none';}
+
+  // Day bars
+  const maxEff=Math.max(...w.perDay.map(d=>d.eff),0.01);
+  const bars=document.getElementById('weekBars');bars.innerHTML='';
+  w.perDay.forEach((d,i)=>{
+    const pct=d.eff>0?(d.eff/maxEff)*100:0,col=d.eff>0?effColorHex(d.eff*100):'#1e2a45';
+    const row=document.createElement('div');row.className='day-bar-row';
+    row.innerHTML=`
+      <div class="dbr-day" style="color:${d.eff>0?col:'var(--gray)'}">${DSHRT[i]}</div>
+      <div class="dbr-wrap"><div class="dbr-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="dbr-hrs">${d.hw>0?d.hw.toFixed(1)+'h':''}</div>
+      <div class="dbr-eff" style="color:${d.eff>0?col:'var(--gray)'}">${d.eff>0?(d.eff*100).toFixed(1)+'%':'—'}</div>`;
+    bars.appendChild(row);
+  });
+}
+
+function effColor(p){if(p>=50)return'#e06030';if(p>=45)return'#e09040';if(p>=40)return'var(--gold)';if(p>=35)return'#3da068';if(p>0)return'var(--red)';return'var(--gray)';}
+function effColorHex(p){if(p>=50)return'#e06030';if(p>=45)return'#e09040';if(p>=40)return'#C9A84C';if(p>=35)return'#3da068';if(p>0)return'#c0704a';return'#1e2a45';}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2400);}
+function setHdrDate(){const n=new Date();const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];document.getElementById('hdrDate').textContent=d[n.getDay()]+' '+mo[n.getMonth()]+' '+n.getDate();}
+
+hydrate();loadSetupForm();defaultMonday();setHdrDate();renderDay();
+</script>
+</body>
+</html>
